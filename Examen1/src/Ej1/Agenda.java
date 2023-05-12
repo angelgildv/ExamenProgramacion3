@@ -5,9 +5,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.ResultSet;
-import java.util.Date;
 import java.util.Scanner;
 import java.sql.SQLException;
+import java.util.InputMismatchException;
 
 public class Agenda {
 
@@ -18,28 +18,28 @@ public class Agenda {
             String ip;
             String nombre_tabla;
 
-            //PRUEBAS DURANTE EXAMEN
-            nombre_base = "AGENDA";
-            nombre_tabla = "contactos";
-            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-            String url = "jdbc:mysql://10.230.109.186:3306/AGENDA?serverTimezone=UTC";
-            Connection conexion = DriverManager.getConnection(url, "root", "");
-            Statement st = conexion.createStatement();
-
-//            System.out.println("Introduce tu ip"); //10.230.109.186 (durante el examen)
-//            ip = esc.next();
-//            System.out.println("Introduce el nombre de tu base de datos"); //AGENDA
-//            nombre_base = esc.next();
-//            // Cargamos la clase que implementa el Driver
+            // PARA PRUEBAS DURANTE EXAMEN
+//            nombre_base = "AGENDA";
+//            nombre_tabla = "contactos";
 //            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-//            // Creamos una nueva conexión a la base de datos elegida
-//            String url = "jdbc:mysql://" + ip + ":3306/" + nombre_base + "?serverTimezone=UTC";
+//            String url = "jdbc:mysql://10.230.109.186:3306/AGENDA?serverTimezone=UTC";
 //            Connection conexion = DriverManager.getConnection(url, "root", "");
-//            // Obtenemos un Statement de la conexión
 //            Statement st = conexion.createStatement();
-//            // Pedimos la tabla a utilizar
-//            System.out.println("Introduce el nombre de la tabla que quieras utilizar"); //contactos
-//            nombre_tabla = esc.next();
+
+            System.out.println("Introduce tu ip"); //10.230.109.186 (durante el examen)
+            ip = esc.next();
+            System.out.println("Introduce el nombre de tu base de datos"); //AGENDA
+            nombre_base = esc.next();
+            // Cargamos la clase que implementa el Driver
+            Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
+            // Creamos una nueva conexión a la base de datos elegida
+            String url = "jdbc:mysql://" + ip + ":3306/" + nombre_base + "?serverTimezone=UTC";
+            Connection conexion = DriverManager.getConnection(url, "root", "");
+            // Obtenemos un Statement de la conexión
+            Statement st = conexion.createStatement();
+            // Pedimos la tabla a utilizar
+            System.out.println("Introduce el nombre de la tabla que quieras utilizar"); //contactos
+            nombre_tabla = esc.next();
             
             if ("AGENDA".equals(nombre_base)) {
                 if ("contactos".equals(nombre_tabla)) {
@@ -85,12 +85,17 @@ public class Agenda {
                                 System.out.println("Escribe el id del contacto que quieres editar (puedes buscarlo en la opcion 1 del menu):");
                                 id = esc.nextInt();
                                 System.out.println("¿Desea cambiar nombre(1), telefono(2) o ambos(3)?");
-                                
-                                nombre = esc.next();
-                                telefono = esc.nextInt();
-                                
-                                comando_mysql = "UPDATE " + nombre_tabla + " SET nombre='"+nombre+"' and telefono="+telefono+" WHERE id="+id;
-                                st.executeUpdate(comando_mysql);
+                                int opciontemp = esc.nextInt();
+                                if (opciontemp == 1 || opciontemp == 3) {
+                                    System.out.println("Escriba el nuevo nombre:");
+                                    comando_mysql = "UPDATE " + nombre_tabla + " SET nombre='"+esc.next()+"' WHERE id="+id;
+                                    st.executeUpdate(comando_mysql);
+                                }
+                                if (opciontemp == 2 || opciontemp == 3) {
+                                    System.out.println("Escriba el nuevo telefono:");
+                                    comando_mysql = "UPDATE " + nombre_tabla + " SET telefono="+esc.nextInt()+" WHERE id="+id;
+                                    st.executeUpdate(comando_mysql);
+                                }
                                 System.out.println("Contacto editado correctamente.");
                                 break;
                             case 4: //eliminar
@@ -109,7 +114,7 @@ public class Agenda {
             // Cerramos el statement y la conexión
             st.close();
             conexion.close();
-        } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+        } catch (SQLException | ClassNotFoundException | IllegalAccessException | InstantiationException | InputMismatchException e) {
             System.out.println("Excepcion: " + e);
         }
     }
