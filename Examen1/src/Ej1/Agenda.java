@@ -48,6 +48,9 @@ public class Agenda {
                     int menu = 0;
                     String comando_mysql = "";
                     ResultSet consulta;
+                    String nombre;
+                    int telefono;
+                    int id;
 
                     while (menu != 5) {
                         System.out.println("1. Mostrar todos los contactos\n2. Añadir contacto\n3. Editar contacto\n4. Eliminar contacto\n5. Salir");
@@ -58,64 +61,51 @@ public class Agenda {
                                 consulta = st.executeQuery(comando_mysql);
                                 // Recorremos todo el ResultSet y mostramos sus datos
                                 while (consulta.next()) {
-                                    int id = consulta.getInt("id");
-                                    String nombre = consulta.getString("nombre");
-                                    int telefono = consulta.getInt("telefono");
+                                    id = consulta.getInt("id");
+                                    nombre = consulta.getString("nombre");
+                                    telefono = consulta.getInt("telefono");
                                     System.out.println("Nombre: " + nombre + ", Telefono: " + telefono + " | " + "ID: " + id);
                                 }
                                 break;
                             case 2: //añadir
                                 System.out.println("Elige un nombre, telefono e id");
-                                String nombre = esc.next();
-                                int telefono = esc.nextInt();
-                                int id = esc.nextInt();
+                                nombre = esc.next();
+                                telefono = esc.nextInt();
+                                id = esc.nextInt();
                                 comando_mysql = "INSERT INTO " + nombre_tabla + " VALUES (?, ?, ?)";
-                                
-                                PreparedStatement preparedStmt = conexion.prepareStatement(comando_mysql);
-                                preparedStmt.setInt (1, id);
-                                preparedStmt.setString (2, nombre);
-                                preparedStmt.setInt (3, telefono);
-
-                                preparedStmt.execute();
-                                //preparedStmt.executeUpdate();
+                                // Preparamos los huecos en los que se van a añadir los valores y lo ejecutamos en orden
+                                PreparedStatement añadir = conexion.prepareStatement(comando_mysql);
+                                añadir.setInt (1, id);
+                                añadir.setString (2, nombre);
+                                añadir.setInt (3, telefono);
+                                añadir.execute();
                                 System.out.println("Contacto añadido correctamente.");
                                 break;
+                            case 3: //editar
+                                System.out.println("Escribe el id del contacto que quieres editar (puedes buscarlo en la opcion 1 del menu):");
+                                id = esc.nextInt();
+                                System.out.println("¿Desea cambiar nombre(1), telefono(2) o ambos(3)?");
                                 
-
-//                            case 3:
-//                                System.out.println("Introduce el nombre del contacto");
-//                                System.out.println("¿Existe?: "+agenda.existeContacto(esc.next()));
-//                                break;
-//                            case 4:
-//                                agenda.listarContactos();
-//                                break;
-//                                int opcion = 0;
-//                                while (opcion != 3) {
-//                                    System.out.println("Tipo de contacto: 1-Persona, 2-Empresa");
-//                                    opcion = esc.nextInt();
-//                                    switch (opcion) {
-//                                        case 1:
-//                                            System.out.println("Introduce los datos del contacto");
-//                                            ContactoPersona cc = new ContactoPersona(esc.next(), esc.nextInt(), esc.nextLine());
-//                                            System.out.println("Confirmación del proceso: "+agenda.añadirContacto(cc));
-//                                            break;
-//                                        case 2:
-//                                            System.out.println("Introduce los datos del contacto");
-//                                            ContactoEmpresa ce = new ContactoEmpresa(esc.next(), esc.nextInt(), esc.nextLine());
-//                                            System.out.println("Confirmación del proceso: "+agenda.añadirContacto(ce));
-//                                            break;
-//                                    }
-//                                }
-//                                break;
-//                            case 5:
-//                                break;
+                                nombre = esc.next();
+                                telefono = esc.nextInt();
+                                
+                                comando_mysql = "UPDATE " + nombre_tabla + " SET nombre='"+nombre+"' and telefono="+telefono+" WHERE id="+id;
+                                st.executeUpdate(comando_mysql);
+                                System.out.println("Contacto editado correctamente.");
+                                break;
+                            case 4: //eliminar
+                                System.out.println("Escribe el id del contacto que quieres eliminar (puedes buscarlo en la opcion 1 del menu):");
+                                id = esc.nextInt();
+                                
+                                comando_mysql = "DELETE FROM " + nombre_tabla + " WHERE id="+id;
+                                st.executeUpdate(comando_mysql);
+                                break;
                         }
                     }
                 }
             } else {
                 System.out.println("Base de datos no encontrada");
             }
-            
             // Cerramos el statement y la conexión
             st.close();
             conexion.close();
